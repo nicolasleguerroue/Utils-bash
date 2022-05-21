@@ -1,0 +1,6 @@
+sudo snap install spotify
+sudo snap install drawio
+sudo snap install discord
+sudo snap install brave
+sudo snap install opera
+

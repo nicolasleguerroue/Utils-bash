@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#Variables globales
+storage="$HOME/.Utils"						#dossier où seront stockées les données du logiciel
+source_directory="$storage/Software"   		#Emplacement relatif du code source du site
+errors_output="$storage/stderr_utils.log"
+standard_output="$storage/stdout_utils.log"
+output_filename="Utils"
+
+source $storage/lib/Zenity.sh
+
+SetTitle "Gestionnaire d'installation"
+SetSize 400 200
+
+
+if [[ $1 == "-y" ]]; then
+	#statements
+
+	cd $storage
+	zip -r $HOME/$output_filename.zip *
+
+else
+
+	if [[ $(Question "Voulez-vous récupérer le code source en fichier compressé ?" 2>> $errors_output) == "1" ]]; then  2>> $errors_output >> $standard_output 
+
+		cd $storage
+		zip -r $HOME/$output_filename.zip *
+		echo -e "Récupération du code source terminée."
+	else
+
+		exit
+
+	fi
+
+fi
+

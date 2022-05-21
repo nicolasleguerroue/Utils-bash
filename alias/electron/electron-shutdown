@@ -1,0 +1,4 @@
+#!/bin/bash
+echo -e "Extinction du serveur electron-lib.net..."
+sudo ssh -t nico@electron-lib.net "sudo shutdown now"
+

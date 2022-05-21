@@ -1,0 +1,86 @@
+#!/bin/bash
+
+sudo apt-get install -y --no-install-recommends xserver-xorg 2>> errors.list #Serveur graphique
+sudo apt-get install -y raspberrypi-ui-mods 2>> errors.list #gestionnaire de bureau
+sudo apt-get install -y lightdm 2>> errors.list #gestionnaire de fenetre
+sudo reboot
+#Installion du GUI -> OK
+
+sudo apt-get update 2>> errors.list
+sudo apt-get dist-upgrade 2>> errors.list
+sudo reboot 2>> errors.list
+echo -e "Recherche de l'emplacement de travail..."
+localisation=`pwd` 
+echo -e "[OK]"
+
+
+echo -e "Installation du serveur WEB..."
+sudo apt-get update 
+sudo apt install -y apache2 
+sudo chmod -R 770 /var/www/html/ 
+sudo apt install -y php php-mbstring 
+sudo apt install -y mysql-server php-mysql 
+sudo apt install -y phpmyadmin 
+sudo ln -s /usr/share/phpmyadmin /var/www/html/phpmyadmin 
+echo -e "[OK]"
+#sudo mysql --user=root
+
+#Dans MySql :
+#DROP USER 'root'@'localhost';
+#CREATE USER 'root'@'localhost' IDENTIFIED BY 'password';
+#GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost';
+
+#dépendances utiles
+
+sudo apt-get install -y libreoffice 
+sudo apt-get install -y gparted 
+sudo apt-get install -y synaptic  
+sudo apt-get install -y nmap    
+sudo apt-get install -y htop    
+sudo apt-get install -y iftop  
+sudo apt-get install -y vnstat 
+sudo apt-get install -y vnstati 
+sudo apt-get install -y bc 
+
+sudo apt-get install -y vlc 
+sudo apt-get install -y ristretto 
+sudo apt-get install -y mousepad 
+sudo apt-get install -y geany 
+sudo apt-get install -y sl 
+sudo apt-get install -y dialog  
+
+sudo apt-get install python3-pip
+sudo pip3 install fabric
+sudo apt-get install fabric
+
+echo -e "Don des droits sur les fichiers..."
+sudo cp $localisation/Bash/lyrics /bin
+sudo cp $localisation/Bash/video /bin
+sudo cp $localisation/Bash/photo /bin
+sudo cp $localisation/Libraries/Data /bin
+sudo cp $localisation/Libraries/Files /bin
+sudo cp $localisation/Libraries/Display /bin
+sudo chmod 777 /bin/lyrics
+sudo chmod 777 /bin/video
+sudo chmod 777 /bin/photo
+sudo chmod 777 /bin/Data
+sudo chmod 777 /bin/Files
+sudo chmod 777 /bin/Display
+
+echo -e "[OK]"
+ 
+echo -e "Installation des dépendances Git, Python et Gcc..."
+sudo apt-get install -y git 
+sudo apt-get install -y python-dev 
+sudo apt-get install -y python-serial 
+sudo apt-get install -y gcc
+echo -e "[OK]"
+
+echo -e "Installation des ports GPIO..."
+sudo $localisation/wiringPi/build
+echo -e "[OK]"
+
+echo -e "Installation du gestionnaire de synthèse vocale..."
+sudo apt-get install -y libttspico-utils
+echo -e "[OK]"
+

@@ -1,0 +1,58 @@
+#!/bin/bash
+
+echo -e "Ce programme permet de générer des interfaces pour vos scripts"
+echo -e "Arguments possibles :"
+echo -e ""
+
+echo -e "$grey InitSize $red width height $default"
+echo -e "$grey InitTitle $red title $default"
+echo -e "->Définit les dimensions et le titre de l'interface"
+echo -e ""
+
+echo -e "$grey InitTimeMessageEnd $red time $default"
+
+echo -e "$grey ProgressBar $red message time step $default"
+echo -e "$grey ProgressBarLocked $default"
+echo -e "Crée une barre de progression bloquée ou non"
+echo -e ""
+
+echo -e "$grey InitMessageEnd $red message_end $default"
+echo -e "$grey NoMessageEnd $default"
+echo -e "->Définit le message en fin de barre de progression"
+echo -e ""
+
+echo -e "$grey InitTimeMessageEnd $red time $default"
+echo -e "->Définit le temps du message en fin de barre de progression"
+echo -e ""
+
+echo -e "$grey MsgBox $red message $default"
+echo -e "->Affiche un message"
+echo -e ""
+
+echo -e "$grey YesNo $red message $default"
+echo -e "->Crée un dialogue avec deux réponses possibles : oui ou non"
+echo -e ""
+
+echo -e "$grey InputBox $red message $default"
+echo -e "->Crée une barre de saisie de texte"
+echo -e ""
+
+echo -e "$grey Menu $red table $default"
+echo -e "->Affiche un menu"
+echo -e ""
+
+echo -e "$grey DisplayNetwork $default"
+echo -e "->Crée une barre d'attente de réseau"
+echo -e ""
+
+echo -e "$grey GetInputBox $default"
+echo -e "->Récupère la valeur du champ input"
+echo -e ""
+
+echo -e "$grey GetYesNo $default"
+echo -e "->Récupère la réponse du dialogue Oui/Non"
+echo -e ""
+
+echo -e "$grey GetMenu $default"
+echo -e "->Récupère la valeur selectionnée du menu"
+echo -e ""

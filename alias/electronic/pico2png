@@ -1,0 +1,81 @@
+#!/bin/bash
+
+
+
+if [[ $1 == "" ]];then
+    echo -e "Please select a input folder () !"
+    exit
+fi
+if [[ $2 == "" ]];then
+    echo -e "Please select a input separator !"
+    exit
+fi
+if [[ $3 == "" ]];then
+    echo -e "Please select a output separator !"
+    exit
+fi
+echo -e ">> Start convert waveform directory ($1) to images with '$3' separator"
+touch .graph.gnuplot
+
+echo -e ">> Input directory : $1"
+directory=$1
+output_directory="$directory"_images
+
+
+if [[ ! -d $output_directory ]];then 
+    echo -e ">> Building '$output_directory' directory"
+    mkdir $output_directory
+fi
+echo -e ">> '$output_directory' directory already exists !"
+
+for files in $(ls $directory); do
+
+		
+
+		if [ -f $directory/$files ]; then
+			
+
+            unitTime=`sed '2q;d' $directory/$files | cut -d $3 -f1 | cut -d ')' -f1 | cut -d '(' -f2`
+            unitVoltage=`sed '2q;d' $directory/$files | cut -d $3 -f2 | cut -d ')' -f1 | cut -d '(' -f2`
+            maxValueTime=`tail -n 1 $directory/$files | cut -d $3 -f1 | cut -d ',' -f1`
+            nameWithoutFormat=`echo $files | cut -d '.' -f1`
+            echo ">> Copying $directory/$files into '$output_directory' directory"
+            cp $directory/$files $output_directory/__$files
+            echo ">> Changing separator in '"$output_directory/$files"' file ($2 -> $3)"
+
+            sed 's/,/./g' $output_directory/__$files | sed 's/'$2'/'$3'/g' > $output_directory/$files
+            echo ">> deleting header lines in '$output_directory/$files' file "
+            sed -i -e 1,3d $output_directory/$files
+
+ 			rm .graph.gnuplot
+            echo "set terminal png" >> .graph.gnuplot
+            echo "set output '"$output_directory/$nameWithoutFormat.png"'" >> .graph.gnuplot
+            echo "set title 'V($unitTime)'" >> .graph.gnuplot
+            echo "set xlabel 'Temps ($unitTime)'" >> .graph.gnuplot
+            echo "set ylabel 'Tension ($unitVoltage)'" >> .graph.gnuplot
+            echo "set xrange [0:$maxValueTime]" >> .graph.gnuplot
+            echo 'set datafile separator "'$3'"' >> .graph.gnuplot
+            echo "set xtics" >> .graph.gnuplot
+            echo "set grid ytics mytics" >> .graph.gnuplot
+            echo "set grid xtics mxtics" >> .graph.gnuplot
+            echo "set style fill transparent solid 0.01" >> .graph.gnuplot 
+            echo "unset key" >> .graph.gnuplot 
+            
+#           echo "set xtics rotate by 60 right  " >> .graph.gnuplot
+            echo ">> Generating plot from '$output_directory/$files' file "
+            echo "plot '"$output_directory/$files"' with lines lt rgb '#0000FF' lw 0.1 " >> .graph.gnuplot  #2:xtic(1)
+            echo "set terminal pdf" >> .graph.gnuplot
+            echo "set output '"$output_directory/$nameWithoutFormat.pdf"'" >> .graph.gnuplot
+            echo "plot '"$output_directory/$files"' with lines lt rgb '#0000FF' lw 0.1 " >> .graph.gnuplot  #2:xtic(1)
+            echo "set terminal svg" >> .graph.gnuplot
+            echo "set output '"$output_directory/$nameWithoutFormat.svg"'" >> .graph.gnuplot
+            echo "plot '"$output_directory/$files"' with lines lt rgb '#0000FF' lw 0.1 " >> .graph.gnuplot  #2:xtic(1)
+            gnuplot .graph.gnuplot
+            echo ">> deleting tmp data file ('$output_directory/__$files') "
+            rm $output_directory/__$files
+
+
+		fi
+	done
+
+ #

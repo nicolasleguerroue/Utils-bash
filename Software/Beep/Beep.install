@@ -1,0 +1,2 @@
+sudo apt-get install -y beep
+sudo modprobe -a pcspkr

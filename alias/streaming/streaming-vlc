@@ -1,0 +1,62 @@
+#!/bin/bash
+time=$1
+reverse=$2
+width=$3
+heigth=$4
+fps=$5
+port=$6
+
+if [[ $time = "" ]]; then
+	time="20000"
+fi
+
+if [[ $reverse = "noReverse" ]]; then
+	reverse="noReverse"
+fi
+if [[ $reverse = "reverse" ]]; then
+	reverse="reverse"
+fi
+
+if [[ $reverse = "" ]];then
+	reverse="noReverse"
+fi
+
+if [[ $width = "" ]]; then
+	width="300"
+fi
+if [[ $heigth = "" ]]; then
+	heigth="300"
+fi
+if [[ $fps = "" ]]; then
+	fps="25"
+fi
+if [[ $port = "" ]]; then
+	port="5000"
+fi
+
+echo -e "IP : `hostname -I`"
+echo -e "Time : $time"
+echo -e "Reverse : $state_reverse"
+echo -e "Width : $width px"
+echo -e "Heigth : $heigth px"
+echo -e "Fps : $fps/s"
+echo -e "Port : $port"
+sleep 0.1
+echo -e "Initialisation du streaming..."
+sleep 2
+
+
+
+
+if [[ $reverse = "reverse" ]]; then
+echo -e "INIT REVERSE..."
+sleep 2
+raspivid -t $time -fps $fps -w $width -h $heigth -hf -vf -o - | cvlc -vvv stream:///dev/stdin --sout '#standard{access=http,mux=ts,dst=:$port' :demux=h264
+fi
+
+if [[ $reverse = "noReverse" ]]; then
+echo -e "INIT NOREVERSE..."
+sleep 2
+raspivid -t $time -fps $fps -w $width -h $heigth -o - | cvlc -vvv stream:///dev/stdin --sout '#standard{access=http,mux=ts,dst=:$port' :demux=h264
+fi
+

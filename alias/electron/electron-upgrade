@@ -1,0 +1,4 @@
+#!/bin/bash
+echo -e "Mise à niveau du serveur electron-lib.net..."
+sudo ssh -t nico@electron-lib.net "sudo apt-get update && sudo apt-get dist-upgrade -y"
+echo -e "Mise à niveau du serveur electron-lib.net : OK"

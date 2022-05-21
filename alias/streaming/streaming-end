@@ -1,0 +1,33 @@
+#!/bin/bash
+
+
+raspivid=`ps -e | grep raspivid | cut -d '?' -f 1 | cut -d 'p' -f 1 `	
+gst=`ps -e | grep gst | cut -d '?' -f 1 | cut -d 'p' -f 1 `		
+
+echo $raspivid
+echo $gst
+
+if [[ -n $raspivid ]]; then
+
+	for e in $raspivid
+	do 
+		echo $e
+		kill -9 $e
+	done
+
+	for e in $gst
+	do 
+		echo $e
+		kill -9 $e
+	done
+
+fi
+
+if [[ $e = "" ]]; then
+	echo "NOTHING"
+fi
+
+
+
+exit 0
+

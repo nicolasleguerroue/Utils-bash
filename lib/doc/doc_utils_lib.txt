@@ -1,0 +1,32 @@
+$ Colors
+Permet d'afficher du texte et l'arrière-plan en couleur
+
+$ Time
+Permet de récuperer l'heure
+
+$ Systeme
+Permet de récupérer des informations sur le système
+
+$ Satellite
+Permet de récupérer une image satellite de l'Europe
+
+$ createc
+Permet de générer des fichier C
+
+$ File
+Permet de vérifier le contenu d'un dossier
+
+$ Network
+Permet de scanner le réseau et de récuperer des informations (adresse IP, MAC)
+
+$ Videos
+Permet d'utiliser une caméra [Architecture ARM rapsberry-pi]
+
+$ Display
+Permet d'afficher des boites de dialogue dans un terminal
+
+$ Zenity
+Permet d'afficher des boites de dialogue avec une interface graphique
+
+$ Sound
+Permet de faire de la synthèse vocale

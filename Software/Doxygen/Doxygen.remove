@@ -1,0 +1,1 @@
+sudo apt-get autoremove doxygen && sudo apt-get autoremove doxygen-gui && sudo apt-get autoremove graphviz

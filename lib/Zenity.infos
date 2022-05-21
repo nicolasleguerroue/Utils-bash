@@ -1,0 +1,29 @@
+#!/bin/bash
+
+	echo "Ce programme permet de génerer des fenetres de dialogues"
+	echo -e "
+	SetTitle 'Titre'  : définit le titre de la fenetre  
+	Print 'message' :affiche une fenetre de message  
+	ProgressBar 'message' temps_total n : affiche une barre de progression de temps_total divisé en n pas 
+	NoBlockProgressBar : (void) passe à la suite lorsque la barre de progression est terminée  
+	BlockProgressBar : (void) ne passe pas à la suite lorsque la barre de progression est terminée  
+	DisplayNetwork : (void) attend une connexion web  
+	
+	SetTextEntry 'texte' ; définit le texte d'une entrée (input) 
+	SetDefaultEntry 'texte' : définit le texte par défaut  
+	Entry : affiche l'entrée  
+	Question 'texte' : pose une question (ou ou non) 
+
+	SetTextList 'texte' : définit le texte pour une Liste  
+	SetColumnsList 'colonne1' 'colonne2' ... : définit les colonnes de la Liste
+	List 'var1' var2 'var3' : définit le contenu de la liste  
+
+	SetTextCheckBox 'texte' : définit le texte pour une CheckBox  
+	SetColumnsCheckBox 'colonne1' 'colonne2' ... : définit les colonnes de la CheckBox
+	CheckBox 'var1' var2 'var3' : définit le contenu de la CheckBox
+
+
+	SetTextRadio 'texte' : définit le texte pour une Radio  
+	SetColumnsRadio 'colonne1' 'colonne2' ... : définit les colonnes de la Radio
+	Radio 'var1' var2 'var3' : définit le contenu de la Radio   -> La 1ere variable doit etre TRUE ou FALSE
+	"

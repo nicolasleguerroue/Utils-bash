@@ -1,0 +1,520 @@
+#!/bin/bash
+
+#couleur de texte
+default="\\033[0m"
+black="\\033[30m"
+red="\\033[31m"
+green="\\033[32m"
+orange="\\033[33m"
+blue="\\033[34m"
+rose="\\033[35m"
+cyan="\\033[36m"
+white="\\033[37m"
+
+
+#arrière plan
+_black="\\033[40m"
+_red="\\033[41m"
+_green="\\033[42m"
+_yellow="\\033[43m"
+_blue="\\033[44m"
+_rose="\\033[45m"
+_cyan="\\033[46m"
+_white="\\033[47m"
+
+#mise en forme (gras....)
+_underligne_="\033[4m"
+_fond_="\033[7m"
+_barre_="\033[9m"
+_blink_="'\e[5;32;40m"
+_default_="\033[0m"
+
+
+makefile='\\n
+#-----------------------------------------------------------------------------\\n
+# this GNU-makefile relies on the GCC toolchain\\n
+# nb: on Windows, the Mingw-w64 package provides the mingw32-make.exe command\\n
+#     ( see http://www.enib.fr/~harrouet/s4prc/#environ.windows )\\n
+\\n
+#~~~~ control global settings ~~~~\\n
+# make opt=2 --> enable optimisation, then disable debug, but keep symbols\\n
+# make opt=1 --> enable optimisation, then disable debug\\n
+# make opt=0 --> disable optimisation, then enable debug\\n
+opt=0\\n
+# make clang=1 --> use clang/clang++, not gcc/g++\\n
+# make clang=0 --> use gcc/g++, not clang/clang++\\n
+clang=0\\n
+# make wasm=1 --> target webassembly rather than the native platform\\n
+# make wasm=0 --> target the native platform rather than webassembly\\n
+wasm=0\\n
+\\n
+#~~~~ build library or programs ~~~~\\n
+# if LIB_TARGET is provided, this library will be built (with its\\n
+# platform-specific name), otherwise ${EXE_PREFIX}* programs will be built\\n
+LIB_TARGET=\\n
+EXE_PREFIX=prog\\n
+\\n
+#~~~~ detect operating system ~~~~\\n
+ifneq (${OS},Windows_NT)\\n
+  ifneq (,${findstring Microsoft,${shell cat /proc/version 2>/dev/null}})\\n
+    # Windows-Subsystem-for-Linux\\n
+    OS:=WSL\\n
+  else ifneq (,${findstring Ubuntu,${shell lsb_release -i 2>/dev/null}})\\n
+    OS:=Ubuntu\\n
+  else ifneq (,${findstring Raspbian,${shell lsb_release -i 2>/dev/null}})\\n
+    # Standard distribution for Raspberry-Pi\\n
+    OS:=Raspbian\\n
+  else\\n
+    OS:=${strip ${shell uname -s}}\\n
+  endif\\n
+endif\\n
+\\n
+#~~~~ adjust project-specific settings ~~~~\\n
+CPPFLAGS=\\n
+# CPPFLAGS+=-I header/path\\n
+LDFLAGS=\\n
+# LDFLAGS+=-L library/path -Wl,-rpath,library/path -l library_name\\n
+CFLAGS=\\n
+CXXFLAGS=\\n
+BINFLAGS=\\n
+ifeq (${OS},Windows_NT)\\n
+  # nothing special for now\\n
+else\\n
+  ifneq (,${strip ${LIB_TARGET}})\\n
+    BINFLAGS+=-fPIC\\n
+  endif\\n
+  ifeq (${OS},Darwin)\\n
+    # nothing special for now\\n
+  else\\n
+    ifeq (${OS},Ubuntu)\\n
+      # sanitizer requires gold-linker on Ubuntu\\n
+      LDFLAGS+=-fuse-ld=gold\\n
+    else ifeq (${OS},Raspbian)\\n
+      # some warnings may appear when mixing g++-6 and g++-7 on Raspbian\\n
+      CXXFLAGS+=-Wno-psabi\\n
+    else\\n
+      # nothing special for now\\n
+    endif\\n
+  endif\\n
+endif\\n
+\\n
+#~~~~ adjust platform-specific features (Posix/Windows/Emscripten...) ~~~~\\n
+ifeq (${OS},Windows_NT)\\n
+  LIB_PREFIX=\\n
+  LIB_SUFFIX=.dll\\n
+  EXE_SUFFIX=.exe\\n
+  SKIP_LINE=echo.\\n
+  REMOVE=del /q\\n
+else\\n
+  LIB_PREFIX=lib\\n
+  ifeq (${OS},Darwin)\\n
+    LIB_SUFFIX=.dylib\\n
+  else\\n
+    LIB_SUFFIX=.so\\n
+  endif\\n
+  EXE_SUFFIX=\\n
+  SKIP_LINE=echo\\n
+  REMOVE=rm -rf\\n
+endif\\n
+ifeq (${strip ${wasm}},1)\\n
+  LIB_PREFIX:=lib\\n
+  LIB_SUFFIX:=.bc\\n
+  EXE_SUFFIX:=.html\\n
+endif\\n
+\\n
+#~~~~ deduce file names ~~~~\\n
+ifneq (,${strip ${LIB_TARGET}})\\n
+  LIB_TARGET:=${LIB_PREFIX}${strip ${LIB_TARGET}}${LIB_SUFFIX}\\n
+  MAIN_C_FILES=\\n
+  MAIN_CXX_FILES=\\n
+else\\n
+  LIB_TARGET:=\\n
+  MAIN_C_FILES=${wildcard ${strip ${EXE_PREFIX}}*.c}\\n
+  MAIN_CXX_FILES=${wildcard ${strip ${EXE_PREFIX}}*.cpp}\\n
+endif\\n
+COMMON_C_FILES=${filter-out ${MAIN_C_FILES},${wildcard *.c}}\\n
+COMMON_CXX_FILES=${filter-out ${MAIN_CXX_FILES},${wildcard *.cpp}}\\n
+#\\n
+MAIN_OBJECT_FILES=${sort ${patsubst %.c,%.o,${MAIN_C_FILES}}\\\\n${patsubst %.cpp,%.o,${MAIN_CXX_FILES}}}\\n
+COMMON_OBJECT_FILES=${sort ${patsubst %.c,%.o,${COMMON_C_FILES}}\\\\n${patsubst %.cpp,%.o,${COMMON_CXX_FILES}}}\\n
+OBJECT_FILES=${MAIN_OBJECT_FILES} ${COMMON_OBJECT_FILES}\\n
+DEPEND_FILES=${patsubst %.o,%.d,${OBJECT_FILES}}\\n
+EXE_FILES=${sort ${patsubst %.c,%${EXE_SUFFIX},${MAIN_C_FILES}}\\\\n${patsubst %.cpp,%${EXE_SUFFIX},${MAIN_CXX_FILES}}}\\n
+#\\n
+GENERATED_FILES=${DEPEND_FILES} ${OBJECT_FILES} ${LIB_TARGET} ${EXE_FILES}\\n
+ifeq (${OS},Darwin)\\n
+  GENERATED_FILES+=${wildcard *.dSYM}\\n
+endif\\n
+ifeq (${strip ${wasm}},1)\\n
+  GENERATED_FILES+=${patsubst %.html,%.js,${EXE_FILES}}\\n
+  GENERATED_FILES+=${patsubst %.html,%.html.mem,${EXE_FILES}}\\n
+  GENERATED_FILES+=${patsubst %.html,%.wasm,${EXE_FILES}}\\n
+  GENERATED_FILES+=${patsubst %.html,%.wast,${EXE_FILES}}\\n
+endif\\n
+GENERATED_FILES+=${wildcard output_* *~}\\n
+\\n
+#~~~~ compiler/linker settings ~~~~\\n
+CPPFLAGS+=-MMD -pedantic -Wall -Wextra -Wconversion\\n
+CPPFLAGS+=-Wno-unused -Wno-unused-parameter -Werror -Wfatal-errors\\n
+CFLAGS+=-std=c99 -Wc++-compat -Wwrite-strings -Wold-style-definition -Wvla\\n
+CXXFLAGS+=-std=c++17\\n
+CXXFLAGS+=-Wno-missing-braces -Wno-sign-conversion\\n
+LDFLAGS+=\\n
+BINFLAGS+=\\n
+ifeq (${strip ${wasm}},1)\\n
+  CC=emcc\\n
+  CXX=em++\\n
+  CPPFLAGS+=-Wno-dollar-in-identifier-extension\\n
+  LDFLAGS+=-s ALLOW_MEMORY_GROWTH=1\\n
+else ifeq (${strip ${clang}},1)\\n
+  CC=clang\\n
+  CXX=clang++\\n
+else\\n
+  CC=gcc\\n
+  CXX=g++\\n
+endif\\n
+#\\n
+ifneq (,${strip ${MAIN_CXX_FILES} ${COMMON_CXX_FILES}})\\n
+  # force c++ link if there is at least one c++ source file\\n
+  LD:=${CXX}\\n
+else\\n
+  LD:=${CC}\\n
+endif\\n
+\\n
+#~~~~ debug/optimisation settings ~~~~\\n
+ifneq (${strip ${opt}},0)\\n
+  CPPFLAGS+=-DNDEBUG\\n
+  BINFLAGS+=-O3 -ffast-math\\n
+  # BINFLAGS+=-fopt-info-vec-optimized\\n
+  ifneq (${strip ${wasm}},1)\\n
+    BINFLAGS+=-march=native\\n
+  endif\\n
+  ifeq (${strip ${opt}},2)\\n
+    # optimise but keep symbols for profiling\\n
+    BINFLAGS+=-g -fno-omit-frame-pointer\\n
+  else\\n
+    BINFLAGS+=-fomit-frame-pointer\\n
+  endif\\n
+else\\n
+  CPPFLAGS+=-UNDEBUG\\n
+  BINFLAGS+=-g -O0\\n
+  ifeq (${strip ${wasm}},1)\\n
+    # sanitizer is not available yet with Emscripten\\n
+  else ifeq (${OS},Windows_NT)\\n
+    # sanitizer is not available yet on Windows\\n
+  else ifeq (${OS},WSL)\\n
+    # sanitizer is not available yet on Windows-Subsystem-for-Linux\\n
+  else\\n
+    BINFLAGS+=-fsanitize=address,undefined\\n
+    ifeq (${OS},Raspbian)\\n
+      # dynamic sanitizer libraries may not be found on Raspbian\\n
+      BINFLAGS+=-static-libasan -static-libubsan\\n
+    endif\\n
+  endif\\n
+endif\\n
+\\n
+#~~~~ main target ~~~~\\n
+all : ${EXE_FILES} ${LIB_TARGET}\\nrebuild : clean all\\n\\n.SUFFIXES:\\n.SECONDARY:\\n.PHONY: all clean rebuild\\n
+\\n
+#~~~~ linker command to produce the library (if any) ~~~~\\n
+${LIB_TARGET} : ${COMMON_OBJECT_FILES}\\n
+	@echo ==== linking [opt=${opt}] $@ ==== ${LD} -shared -o $@ $^ ${BINFLAGS} ${LDFLAGS} @${SKIP_LINE}\\n
+\\n
+#~~~~ linker command to produce the executable files (if any) ~~~~\\n
+%${EXE_SUFFIX} : %.o ${COMMON_OBJECT_FILES} \\n
+  @echo ==== linking [opt=${opt}] $@ ====${LD} -o $@ $^ ${BINFLAGS} ${LDFLAGS} @${SKIP_LINE}\\n
+\\n
+#~~~~ compiler command for every source file ~~~~\\n
+%.o : %.c\\n
+	@echo ==== compiling [opt=${opt}] $< ==== ${CC} -o $@ $< -c ${BINFLAGS} ${CPPFLAGS} ${CFLAGS} @${SKIP_LINE}\\n
+\\n
+%.o : %.cpp\\n
+	@echo ==== compiling [opt=${opt}] $< ==== ${CXX} -o $@ $< -c ${BINFLAGS} ${CPPFLAGS} ${CXXFLAGS} @${SKIP_LINE}\\n
+\\n
+-include ${DEPEND_FILES}\\n
+\\n
+#~~~~ remove generated files ~~~~\\n
+clean :\\n
+	@echo ==== cleaning ==== ${REMOVE} ${GENERATED_FILES} @${SKIP_LINE}\\n
+
+#-----------------------------------------------------------------------------'
+
+
+analyse_prog() {
+
+	folder_name=`cat /bin/createc_filename` 
+
+
+			echo -e "Analyse des importations de bibliothèque dans le fichier prog.c"
+
+			for i in `ls $HOME/$folder_name | grep .h`; do
+
+				if [[ `grep "$i" $HOME/$folder_name/prog.c` != "" ]]; then #si similarité
+
+					if [[ `grep "$i" $HOME/$folder_name/prog.c | grep ">" $HOME/$folder_name/prog.c` != "" ]]; then #si contient > lib officiel
+
+						echo "$i est incluse dans prog.c"
+			
+
+				    else
+				    	echo "NON OFFICIEL $i"
+				    	
+
+				    
+					fi
+					
+				
+				else
+					echo "$i n'est pas incluse dans prog.c"
+				fi
+			done
+			echo -e "Analyse des importations de bibliothèque dans le fichier prog.c [$green --OK-- $default]"
+			echo -e "Compilation du projet..."
+			echo -e "Compilation du projet [$green --OK-- $default]"
+
+}
+
+generate() {
+
+			echo -e "Récupération des paramètres de l'utilitaire..."
+			folder_name=`cat /bin/createc_filename` 
+			echo -e "Récupération des paramètres de l'utilitaire [$green --OK-- $default]"
+			echo -e "Vérification  des paramètres de l'utilitaire..."
+			echo -e "Vérification  des paramètres de l'utilitaire [$green --OK-- $default] "
+
+			if [[ -f $HOME/$folder_name/$1.h ]]; then
+				echo -e "La bibliothèque "$1" existe déja"
+				echo -e "Fermeture du programme"
+				exit
+			fi
+			echo -e "Création du fichier d'en-tête"
+
+			touch $HOME/$folder_name/$1.h 
+			
+			echo -e "//Auteur : "$USER >> $HOME/$folder_name/$1.h
+			echo -e "//Date : "$(date +%d)"/"$(date +%m)"/"$(date +%y) >> $HOME/$folder_name/$1.h
+			echo -e "//Fichier d'en-tête de la bibliothèque "$1 >> $HOME/$folder_name/$1.h
+
+			echo -e '//Inclusions des bibliothèques standards' >> $HOME/$folder_name/$1.h
+
+			echo -e '#ifndef '$1'_h' >> $HOME/$folder_name/$1.h
+			echo -e '#define '$1'_h' >> $HOME/$folder_name/$1.h
+			echo -e "#include <stdint.h> //Gestion des types spéciaux de variables " >> $HOME/$folder_name/$1.h
+			echo -e "#include <stdio.h> //Gestion des entrées/sorties" >> $HOME/$folder_name/$1.h
+			echo -e "#include <stdbool.h> //Gestion des booléens (true/false/" >> $HOME/$folder_name/$1.h
+			echo -e "" >> $HOME/$folder_name/$1.h
+			echo -e "int function(void); //Prototype d'exemple" >> $HOME/$folder_name/$1.h
+			echo -e "" >> $HOME/$folder_name/$1.h
+			echo -e "#endif"  >> $HOME/$folder_name/$1.h
+
+
+			echo -e "Création du fichier d'en-tête [$green --OK-- $default] "
+
+			if [[ -f $HOME/$folder_name/$1.c ]]; then
+
+				echo -e "La bibliothèque "$1" existe déja"
+				echo -e "Fermeture du programme"
+				exit
+			fi
+
+			echo -e "Création du fichier source "
+
+			touch $HOME/$folder_name/$1.c
+
+			echo -e "//Auteur : "$USER >> $HOME/$folder_name/$1.c
+			echo -e "//Date : $(date +%d)/$(date +%m)/$(date +%y)" >> $HOME/$folder_name/$1.c
+			echo -e "//Fichier de définition de la bibliothèque "$1 >> $HOME/$folder_name/$1.c
+
+			echo -e '//Inclusions des bibliothèques standards' >> $HOME/$folder_name/$1.c
+			echo -e '#include <stdlib.h>' >> $HOME/$folder_name/$1.c
+			echo -e '#include <stdint.h>' >> $HOME/$folder_name/$1.c
+			echo -e '#include <stdio.h>' >> $HOME/$folder_name/$1.c
+			echo -e '#include <stdbool.h>' >> $HOME/$folder_name/$1.c
+			echo -e "//Inclusions du fichier d'en-tête de la bibliothèqe "$1 >> $HOME/$folder_name/$1.c
+			echo -e '#include "'$1'.h"' >> $HOME/$folder_name/$1.c
+			echo -e '' >> $HOME/$folder_name/$1.c
+			echo -e 'int function(void){' >> $HOME/$folder_name/$1.c
+			echo -e '' >> $HOME/$folder_name/$1.c
+			echo -e '/* Code de la bibliothèque */' >> $HOME/$folder_name/$1.c
+			echo -e '}//Fin function()' >> $HOME/$folder_name/$1.c
+
+			echo -e "Analyse de la fonction main()..."
+
+			if [[ -f $HOME/$folder_name/prog.c ]]; then
+				echo -e "Analyse de la fonction main() [$green --OK-- $default]"
+				echo -e "Le fichier prog.c existe déja [$green --OK-- $default]"
+				
+			else
+				echo -e "Le fichier prog.c n'existe pas [$orange --WARNING-- $default]"
+				echo -e "Création du fichier prog.c ..."
+
+				touch $HOME/$folder_name/prog.c
+
+				echo -e "//Auteur : "$USER >> $HOME/$folder_name/prog.c
+				echo -e "//Date : "$(date +%d)"/"$(date +%m)"/"$(date +%y) >> $HOME/$folder_name/prog.c
+				echo -e '//Inclusions des bibliothèques standards' >> $HOME/$folder_name/prog.c
+				echo -e '#include "'$1'.h"'>> $HOME/$folder_name/prog.c
+				echo -e '#include <stdlib.h>' >> $HOME/$folder_name/prog.c
+				echo -e '#include <stdint.h>' >> $HOME/$folder_name/prog.c
+				echo -e '#include <stdio.h>' >> $HOME/$folder_name/prog.c
+				echo -e '#include <stdbool.h>' >> $HOME/$folder_name/prog.c
+				echo -e '' >> $HOME/$folder_name/prog.c
+				echo -e 'int main(void){' >> $HOME/$folder_name/prog.c
+				echo -e '' >> $HOME/$folder_name/prog.c
+				echo -e '/* Code */' >> $HOME/$folder_name/prog.c
+				echo -e 'return 0;' >> $HOME/$folder_name/prog.c
+				echo -e '}//Fin main()' >> $HOME/$folder_name/prog.c
+
+				echo -e "Création du fichier prog.c [$green --OK-- $default]"
+
+			fi
+
+		#	if [[ ! -f $HOME/$folder_name/makefile ]]; then
+				
+		#		echo -e "Le fichier makefile n'existe pas [$orange --WARNING-- $default]"
+		#		echo -e "Création du fichier makefile..."
+		#		echo -e $makefile > $HOME/$folder_name/makefile
+		#		echo -e "Création du fichier makefile [$green ----OK---- $default] "
+				#statements
+		#	fi
+
+}
+
+
+	if [[  ! -f /bin/createc ]]; then
+
+	sudo echo -e "le programme createc n'est pas encore installé dans les dépots "
+	echo -e "par le groupe @Nicodrift_Software_Corporation"
+	echo -e $_underligne_"Souhaitez-vous l'installer ? (y/n) $default"
+	read -p ">>> " answer 
+
+	
+		if [[ $answer = "y" ]]; then
+
+			echo -e "Installation du programme..."
+			echo -e "Création du fichier dans le répertoire /bin"
+			sudo touch /bin/createc
+			echo -e "Création du fichier dans le répertoire /bin : [$green --OK-- $default]"
+			echo -e "Récupérations des autorisations d'exécution..."
+			sudo chmod 777 /bin/createc
+			echo -e "Récupérations des autorisations d'exécution : [$green --OK-- $default]"
+			echo -e "Récupérations du nom du programme..."
+			filename=`echo $0 | cut -c3-`
+			sudo cat $filename | while read line;do
+				sudo echo $line >> /bin/createc
+			done 
+			if [[ "$filename" != "createc" ]]; then
+				echo -e "Récupérations du nom du programme : $filename [$red FAIL $default]"
+				echo -e "La méthode d'éxécution du programme est incorrecte;"
+				echo -e "Veuillez executer le programme de la manière suivante :"
+				echo -e "./createc"
+				echo -e "Fermeture du programme"
+				exit
+			fi
+			echo -e "Récupérations du nom du programme : "$filename" [$green --OK-- $default]"
+
+			echo -e $_underligne_"Désirez-vous créer un répertoire de travail ? (y/n) $default"
+			echo -e $green"En cas d'acceptation (saisir 'y'), $default tous vos fichiers crées avec l'utilitaire serons sauvegardés dans ce répertoire."
+			echo -e $red"En cas de refus (saisir 'n') $default, tous les programmes seront enregistrés dans votre espace personnel"
+			read -p ">>> " answer 		
+
+			if [[ $answer = "y" ]]; then
+
+				echo -e $_underligne_"Veuillez préciser le nom du dossier [caractères ASCII] $default"
+				read -p ">>> " answer 
+				if [[ ! -d $HOME/$answer ]]; then
+					echo -e "Création du dossier de travail..."
+					mkdir $HOME/$answer
+					chmod 777 -R $HOME/$answer
+					echo -e "Création du dossier de travail : "$HOME/$answer" [$green --OK-- $default]"
+				else
+					echo -e "Le dossier existe déja"
+					echo -e "Validation du dossier de travail [$green --OK-- $default]"
+				fi
+				
+				
+				echo -e "Sauvegarde du nom du dossier de travail"
+				sudo touch /bin/createc_filename 
+				echo -e "Récupérations des autorisations d'exécution..."
+				sudo chmod 777 /bin/createc_filename
+				echo -e "Récupérations des autorisations d'exécution : [$green --OK-- $default]"
+				sudo echo $answer > /bin/createc_filename 
+				echo -e "Sauvegarde du nom du dossier de travail [$green --OK-- $default]"
+			
+
+			else
+
+				echo -e "Vous souhaitez donc enregistrer les fichiers dans votre espace personnel"
+
+			fi
+
+			echo -e "Fin de l'installation"
+			echo -e "Pour lancer un nouveau projet C, il vous suffit de saisir :"
+			echo -e "createc nom_du_projet" 
+			echo -e "Par défaut, tous les projets serons sauvegardés"
+			echo -e "dans votre répertoire choisis lors de l'installation de l'utilitaire" 
+			echo -e "pour complier le projet, il suffit de saisir la commande createc" 
+			echo -e "Fermeture du programme" 
+
+			exit
+		elif [[ $answer = "n" ]]; then
+			echo -e "Fermeture du programme"
+			exit
+		else
+			echo -e "Argument inattendu [$orange --WARNING-- $default]"
+			echo -e "Fermeture du programme"
+			exit
+		fi
+
+	else  #Fichier installé
+		
+		# if [[ "$UID" -ne "0" ]]; then
+		# 	sudo echo "Bonjour $USER" 
+
+		if [[ $1 == "" ]]; then
+			analyse_prog
+			echo -e "Fin du programme"
+			exit
+		fi
+
+		folder_name=`cat /bin/createc_filename` 
+
+		if [[ -d $HOME/$folder_name ]]; then
+
+			generate $1
+			analyse_prog
+
+		else #Le dossier n'existe pas ...
+
+			echo "Le dossier "$folder_name" n'existe plus : Souhaitez-vous le recréer ? (y/n)"
+			read -p ">>> " answer 
+
+			if [[ "$wanswer" = "y" ]]; then
+				mkdir $HOME/$folder_name
+				generate $1
+				analyse_prog
+			else 
+				echo -e "Fin du programme, la génération a été abandonnée."
+				exit
+			fi
+
+
+		fi
+
+
+
+
+		echo -e "Fin du programme, les fichiers ont été créer avec succès"
+
+		#subl $HOME/$1.c && subl $HOME/$1.h && subl $HOME/$1_main.c
+
+		# if [[ `dpkg -I | grep subl` ]]; then
+		# 	#statements
+		# fi
+
+	fi
+
+
+
+
+

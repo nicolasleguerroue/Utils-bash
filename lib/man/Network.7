@@ -1,0 +1,93 @@
+.\" Manuel pour la bilbiothèque Network
+.TH Network 7 "20/07/2020" "Version 1.0" "Manuel Network"
+
+.SH NOM
+.B Network
+
+.SH TYPE
+.B Bibliothèqe Bash
+
+.SH DESCRIPTION
+.I Permet de scanner le réseau et de récuperer des informations sur l\'état de la connexion réseau \n
+
+L\'utilisation de la commande source $UTILS permet d'importer la bilbiothèque
+
+
+
+.SH COMMANDES Scan, NetworkIsAvailable, GetIp, WaitingNetwork
+
+
+
+.SH SYNOPSYS
+.B Inclusion de la bibliothèque :  source $UTILS
+
+
+.SH COMMANDE Scan
+
+.B Description :
+Scan permet de scanner le réseau.
+
+.B Option(s) :
+Masque de sous-réseau (192.168.1.1 par exemple)
+
+.B Retour :
+Retourne le résultat de la commande Nmap
+
+.B Exemple :
+echo Scan "192.168.1.1"
+
+
+
+.SH COMMANDE NetworkIsAvailable
+
+.B Description :
+NetworkIsAvailable permet de savoir si la machine est connectée au réseau
+
+.B Option(s) :
+Aucun argument demandé
+
+.B Retour :
+Retourne 0 si la machine est déconnectée et 1 si elle est connectée
+
+.B Exemple :
+echo $(NetworkIsAvailable)
+
+
+.SH COMMANDE GetIp
+
+.B Description :
+GetIp permet de récuperer l'adresse IP et MAC
+
+.B Option(s) :
+Aucun argument demandé
+
+.B Retour :
+Retourne l'adresse IP et MAC si elle a été trouvée
+
+.B Exemple :
+echo $(GetIp)
+
+
+
+.SH COMMANDE WaitingNetwork 
+
+
+.B Description :
+permet d\'attendre une connexion réseau. La commande bouclera sur elle-même en attendant une connexion.
+
+.B Option(s) :
+Aucun argument demandé
+
+.B Retour :
+Message d\'information si absence de réseau
+
+.B Exemple :
+echo $(WaitingNetwork)
+
+
+.SH VOIR AUSSI
+source, nmap, hostname
+
+.SH AUTHOR \n
+Nicolas Le Guerroué - nicolasleguerroue@gmail.com
+

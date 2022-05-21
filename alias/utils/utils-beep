@@ -1,0 +1,5 @@
+#!/bin/bash
+sudo modprobe -a pcspkr
+beep -f 440 -d 400
+beep -f 680 -d 400
+beep -f 890 -d 400

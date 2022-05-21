@@ -1,0 +1,74 @@
+.\" Manuel pour la bilbiothèque Colors
+.TH Colors 7 "20/07/2020" "Version 1.0" "Manuel Colors"
+
+.SH NOM
+.B Colors
+
+.SH DESCRIPTION
+
+Colors permet d\'afficher du texte en couleur (et son arrière-plan) dans le terminal
+
+.SH TYPE
+Bibliothèque Bash
+
+.SH SYNOPSYS
+.B Inclusion de la bibliothèque :  source $UTILS
+
+
+.SH COULEURS DE TEXTE
+
+.TP
+- noir : $black
+.TP
+- rouge : $red
+.TP
+- vert : $green
+.TP
+- jaune : $yellow
+.TP
+- bleu : $blue
+.TP
+- rose : $rose
+.TP
+- cyan : $cyan
+.TP
+- blanc : $white
+.TP
+- Couleur par défaut du terminal : $default
+
+.SH COULEURS DE FOND
+
+Il est possible d\'importer les couleurs d\'arrières-plans suivantes :
+
+.TP
+- noir : $_black
+.TP
+- rouge : $_red
+.TP
+- vert : $_green
+.TP
+- jaune : $_yellow
+.TP
+- bleu : $_blue
+.TP
+- rose : $_rose
+.TP
+- cyan : $_cyan
+.TP
+- blanc : $_white
+.TP
+- Couleur par défaut du terminal : $_default
+
+.SH OPTIONS
+Aucune option
+
+.SH EXEMPLE
+echo -e $red Ceci est du texte en rouge $default
+
+.SH VOIR AUSSI
+source
+.SH ERREURS 
+Avec l'utilisation de la commande echo, ne pas oublier l'argument -e (caractères spéciaux)
+
+.SH AUTHOR \n
+Nicolas Le Guerroué - nicolasleguerroue@gmail.com

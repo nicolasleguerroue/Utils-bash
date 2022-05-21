@@ -1,0 +1,6 @@
+#!/bin/bash
+echo -e "Sauvegarde du serveur WEB local vers le serveur electron-lib.net..."
+sudo rsync -avh -pdgz   --info=progress1 --delete-before --stats /var/www/html/ nico@electron-lib.net:/var/www/html
+echo -e "Sauvegarde du serveur WEB local vers le serveur electron-lib.net : OK"
+
+sudo rsync -avh -pdgz   --info=progress1 --delete-before --stats /var/www/html/ pi@192.168.43.254:/var/www/html

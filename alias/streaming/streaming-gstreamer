@@ -1,0 +1,62 @@
+#!/bin/bash
+
+#Fichier de streaming via Gstreamer
+#Projet DORA - 2017-2018 - Colbert
+
+time=$1
+reverse=$2
+width=$3
+heigth=$4
+fps=$5
+port=$6
+
+if [[ $time = "" ]]; then
+	time="20000"
+fi
+
+if [[ $reverse = "noReverse" ]]; then
+	reverse="noReverse"
+fi
+if [[ $reverse = "reverse" ]]; then
+	reverse="reverse"
+fi
+
+if [[ $reverse = "" ]];then
+	reverse="noReverse"
+fi
+
+if [[ $width = "" ]]; then
+	width="300"
+fi
+if [[ $heigth = "" ]]; then
+	heigth="300"
+fi
+if [[ $fps = "" ]]; then
+	fps="25"
+fi
+if [[ $port = "" ]]; then
+	port="5000"
+fi
+
+echo -e "IP : `hostname -I`"
+echo -e "Time : $time"
+echo -e "Reverse : $state_reverse"
+echo -e "Width : $width px"
+echo -e "Heigth : $heigth px"
+echo -e "Fps : $fps/s"
+echo -e "Port : $port"
+
+
+
+
+if [[ $reverse = "reverse" ]]; then
+raspivid -t $time -hf -vf -fps $fps -w $width -h $heigth -o - | gst-launch-1.0 fdsrc ! h264parse ! rtph264pay config-interval=1 pt=96 ! gdppay ! tcpserversink host=192.168.1.26 port=$port &
+fi
+
+if [[ $reverse = "noReverse" ]]; then
+raspivid -t $time -fps $fps -w $width -h $heigth -o - | gst-launch-1.0 fdsrc ! h264parse ! rtph264pay config-interval=1 pt=96 ! gdppay ! tcpserversink host=`hostname -I` port=$port &
+fi
+
+exit 0
+
+# raspivid -t 20000 -hf -vf -fps 30 -w 300 -h 300 -o - | gst-launch-1.0 fdsrc ! h264parse ! rtph264pay config-interval=1 pt=96 ! gdppay ! tcpserversink host=192.168.1.26 port=6000 &

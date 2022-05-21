@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo -e "Ce programme permet de vérifier le contenu d'un dossier "
+echo -e "la fonction InitLocation 'localisation' définit le répertoire de travail "
+echo -e "CheckFiles 'liste des fichiers théoriques' retourne True ou False en focntion des fichiers théoriques et réels."
+echo -e "en cas de fichiers manquants, ceux ci sont accessibles via la fonction getMissingFiles qui renvoie \n la liste des fichiers manquants"

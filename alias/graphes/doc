@@ -1,0 +1,177 @@
+#!/bin/bash
+#Writed by Nicolas Le Guerroué
+
+
+#################################################
+## Folders
+#################################################
+
+part_dir="DOC" 						#Contains content file
+
+count=0
+last_s=0
+#####################################################################################
+##
+##    GENERATE LOG LIBRARIES
+##
+#####################################################################################
+function makeChart {
+
+	#$1 : Directory to count 
+	#$2 : Output filename
+	#$3 : Title x axis
+	#$4 : Title y axis 
+	#$5 : Title
+
+	echo "" > data.txt
+	echo "" > graph.gnuplot
+	for item in "$1"/*.h
+	do
+		name=`echo $item | cut -d'/' -f2`  #| cut -d'.' -f1
+		echo $name `wc -l $item | cut -d' ' -f1` >> data.txt
+	done
+
+	for item in "$1"/*.cpp
+	do
+		name=`echo $item | cut -d'/' -f2`  #| cut -d'.' -f1
+		echo $name `wc -l $item | cut -d' ' -f1` >> data.txt
+	done
+	
+	i=0
+	for a in `cat data.txt`
+	do
+	let i++
+	if (( $i % 2 == 0 ))
+	then
+	count=$(($count + $a))
+	else
+	echo "" >> .t.txt
+	fi
+	done
+
+	tmp_cout=$(($count-$last_s))
+	echo ">>>>>$tmp_cout"
+	last_s=$(($count))
+
+	echo "OLD value="$last_s
+
+
+	echo "TOTAL LINE NUMBER : "$tmp_cout
+	echo "$1 $tmp_cout" >> dataAll.txt
+
+	echo "set terminal png" >> graph.gnuplot
+	echo "set output '"$2"'" >> graph.gnuplot
+	echo "set title '"$5"'" >> graph.gnuplot
+	echo "set xlabel '"$3"'" >> graph.gnuplot
+	echo "set ylabel '"$4"'" >> graph.gnuplot
+	echo "set grid" >> graph.gnuplot
+	echo "" >> graph.gnuplot
+	echo "set style data histogram" >> graph.gnuplot
+	echo "set style histogram cluster gap 1" >> graph.gnuplot
+	echo "set style fill solid border -1" >> graph.gnuplot
+	echo "" >> graph.gnuplot
+	echo "set xtics rotate by 60 right  " >> graph.gnuplot
+	echo "plot 'data.txt' using 2:xtic(1)" >> graph.gnuplot
+
+	gnuplot graph.gnuplot
+
+	echo "" > data.txt
+
+}
+
+function makeDir {
+
+	#$1 : Directory to count 
+	#$2 : Output filename
+	#$3 : Title x axis
+	#$4 : Title y axis 
+	#$5 : Title
+
+	#"Courses" "Courses.png" "Nom du fichier" "Nombre de lignes" "Nombre de ligne par fichier"
+
+	echo "set terminal png" >> graph2.gnuplot
+	echo "set output 'Namespaces.png'" >> graph2.gnuplot
+	echo "set title 'Namespaces.png'" >> graph2.gnuplot
+	echo "set xlabel 'Nombre de lignes" >> graph2.gnuplot
+	echo "set ylabel 'Nombre de ligne par fichier" >> graph2.gnuplot
+	echo "set grid" >> graph2.gnuplot
+	echo "" >> graph2.gnuplot
+	echo "set style data histogram" >> graph2.gnuplot
+	echo "set style histogram cluster gap 1" >> graph2.gnuplot
+	echo "set style fill solid border -1" >> graph2.gnuplot
+	echo "" >> graph2.gnuplot
+	echo "set xtics rotate by 60 right  " >> graph2.gnuplot
+	echo "plot 'dataAll.txt' using 2:xtic(1)" >> graph2.gnuplot
+
+	gnuplot graph2.gnuplot
+
+}
+
+function makeRecursiveChart {
+
+	#$1 : Directory to count 
+	#$2 : Output filename
+	#$3 : Title x axis
+	#$4 : Title y axis 
+	#$5 : Title
+
+	echo "" > data.txt
+	echo "" > graph.gnuplot
+
+	for dir in $part_dir/*
+	do
+		for file in $dir/*
+		do
+	
+		name=`echo $file | cut -d'/' -f3`
+		echo $name"dedede"
+		echo $name `wc -l $file | cut -d' ' -f1` >> data.txt
+
+		done
+	done
+
+	echo "set terminal png" >> graph.gnuplot
+	echo "set output '"$2"'" >> graph.gnuplot
+	echo "set title '"$5"'" >> graph.gnuplot
+	echo "set xlabel '"$3"'" >> graph.gnuplot
+	echo "set ylabel '"$4"'" >> graph.gnuplot
+	echo "set grid" >> graph.gnuplot
+	echo "" >> graph.gnuplot
+	echo "set style data histogram" >> graph.gnuplot
+	echo "set style histogram cluster gap 1" >> graph.gnuplot
+	echo "set style fill solid border -1" >> graph.gnuplot
+	echo "" >> graph.gnuplot
+	echo "set xtics rotate by 60 right  " >> graph.gnuplot
+	echo "plot 'data.txt' using 2:xtic(1)" >> graph.gnuplot
+
+	gnuplot graph.gnuplot
+
+}
+
+#####################################################################################
+##
+##    GENERATE LOG PART
+##
+#####################################################################################
+#
+
+
+	#$1 : Directory to count 
+	#$2 : Output filename
+	#$3 : Title x axis
+	#$4 : Title y axis 
+	#$5 : Title
+
+makeChart "Courses" "Courses.png" "Nom du fichier" "Nombre de lignes" "Nombre de ligne par fichier"
+makeChart "Data" "Data.png" "Nom du fichier" "Nombre de lignes" "Nombre de ligne par fichier"
+makeChart "Debug" "Debug.png" "Nom du fichier" "Nombre de lignes" "Nombre de ligne par fichier"
+makeChart "GUI" "GUI.png" "Nom du fichier" "Nombre de lignes" "Nombre de ligne par fichier"
+makeChart "Markdown" "Markdown.png" "Nom du fichier" "Nombre de lignes" "Nombre de ligne par fichier"
+makeChart "Tools" "Tools.png" "Nom du fichier" "Nombre de lignes" "Nombre de ligne par fichier"
+makeChart "Users" "Users.png" "Nom du fichier" "Nombre de lignes" "Nombre de ligne par fichier"
+makeChart "Main" "Main.png" "Nom du fichier" "Nombre de lignes" "Nombre de ligne par fichier"
+makeDir
+
+rm graph.gnuplot
+rm data.txt
+rm dataAll.txt

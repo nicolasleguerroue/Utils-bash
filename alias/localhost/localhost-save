@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo rsync -avh -pdgz   --info=progress1 --filter='- .*' --exclude "Vidéos" --exclude "Qt" --exclude "Logiciels" --exclude "domoticz" --exclude "snap" --delete-before --stats /home/nico/ nico@91.168.158.141:/home/nico

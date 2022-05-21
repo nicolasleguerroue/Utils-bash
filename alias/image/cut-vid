@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo -e "Start"
+
+
+ffmpeg -i input_vid.mp4 -ss 00:00:09 -t 00:00:52.00 -c:v copy -c:a copy  output_vid.mp4

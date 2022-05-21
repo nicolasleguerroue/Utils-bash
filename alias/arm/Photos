@@ -1,0 +1,42 @@
+#!/bin/bash
+
+name_photo=$1
+nb_photo=$2
+delay_photo=$3
+reverse=$4
+
+if [[ $name_photo = "" ]]; then
+	echo "[ERROR] --- Missing argument : file name --> [DEFAULT] : photo_rpi"
+	name_photo="photo_rpi"
+fi
+
+if [[ $nb_photo = "" ]]; then
+	echo "[ERROR] --- Missing argument : photo number --> [DEFAULT] : 1"
+	nb_photo="1"
+fi
+
+if [[ $delay_photo = "" ]]; then
+	echo "[ERROR] --- Missing argument : photo delay --> [DEFAULT] : 1000"
+	delay_photo="1000"
+fi
+
+if [[ $reverse = "reverse" ]]; then
+	
+	for a in `seq 1 $nb_photo`
+	do
+	echo $a
+	raspistill -t $delay_photo -o $name_photo$a -hf -vf
+	done
+	exit
+fi
+
+
+for a in `seq 1 $nb_photo`
+do
+echo $a
+raspistill -t $delay_photo -o $name_photo$a
+done
+exit
+
+
+

@@ -1,0 +1,4 @@
+/etc/postfix/main.cf
+
+
+Ne pas oublier de débloquer le port 25

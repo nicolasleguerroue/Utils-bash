@@ -1,0 +1,19 @@
+#!/bin/bash
+echo ""
+echo "Information pour le visionnage de la caméra via un ordinateur portable"
+echo ""
+echo "Argument 1 : ip_adress ----------> Form : xxx.xxx.xxx.xxxx --> Default : 192.168.1.31"
+echo "Argument 2 : nb_port ------------> Form : xxxx(x) -----------> Default : 5000"
+echo ""
+
+echo "Informations pour la diffusion du flux vidéo via le raspberry pi"
+echo ""
+echo "Argument 1 : time (milliseconds)-> Form : xxxx --------------> Default : 20000"
+echo "Argument 2 : reverse ('reverse')-> Form : xxxx --------------> Default : noReverse"
+echo "Argument 3 : width (pixels)------> Form : xxx  --------------> Default : 300"
+echo "Argument 4 : heigth (pixels)-----> Form : xxx.xxx.xxx.xxx ---> Default : 300"
+echo "Argument 5 : fps ----------------> Form : xx ----------------> Default : 25"
+echo "Argument 6 : port ---------------> Form : xxxx --------------> Default : 5000"
+echo ""
+sleep 5
+exit 0

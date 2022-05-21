@@ -1,0 +1,43 @@
+#!/bin/bash
+
+name_video=$1
+nb_video=$2
+duree_video=$3
+reverse=$4
+
+if [[ $name_video = "" ]]; then
+	echo "[ERROR] --- Missing argument : file name --> [DEFAULT] : video_rpi"
+	name_video="video_rpi"
+fi
+
+if [[ $nb_video = "" ]]; then
+	echo "[ERROR] --- Missing argument : video number --> [DEFAULT] : 1"
+	nb_video="1"
+fi
+
+if [[ $duree_video = "" ]]; then
+	echo "[ERROR] --- Missing argument : video delay --> [DEFAULT] : 5000"
+	duree_video="5000"
+fi
+
+if [[ $reverse = "reverse" ]];then
+
+	for a in `seq 1 $nb_video`
+	do
+	echo $a
+	raspivid -t $duree_video -o $name_video$a.h264 -hf -vf
+	done
+	exit
+fi
+
+
+
+for a in `seq 1 $nb_video`
+do
+echo $a
+raspivid -t $duree_video -o $name_video$a.h264 
+done
+exit
+
+
+

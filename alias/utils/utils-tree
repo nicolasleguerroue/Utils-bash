@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#Variables globales
+storage="$HOME/.Utils"						#dossier où seront stockées les données du logiciel
+source_directory="$storage/Software"   		#Emplacement relatif du code source du site
+errors_output="$storage/stderr_utils.log"
+standard_output="$storage/stdout_utils.log"
+
+source $storage/lib/Zenity.sh
+SetSize 800 600
+SetTitle "Arborescence de la bibliothèque Utils"
+tree $storage > $storage/.tmp_tree.txt
+PrintFile "$storage/.tmp_tree.txt"  2>> $errors_output >> $standard_output 
+
+
+
+
+# #sudo mysql --user=root
+
+# #Dans MySql :
+# #DROP USER 'root'@'localhost';
+# #CREATE USER 'root'@'localhost' IDENTIFIED BY 'password';
+# #GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost';
+
+

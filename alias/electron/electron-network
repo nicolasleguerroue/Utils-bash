@@ -1,0 +1,4 @@
+#!/bin/bash
+echo -e "Analyse du réseau du serveur electron-lib.net ..."
+sudo ssh -t nico@electron-lib.net "nmap -sP 192.168.1.0 | grep '192.168'"
+echo -e "Analyse du réseau du serveur electron-lib.net : OK"

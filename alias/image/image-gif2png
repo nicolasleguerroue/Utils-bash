@@ -1,0 +1,17 @@
+#!/bin/bash
+# $1 is input filename in gif format
+# $2 is output filename in png format
+echo -e "Start converting gif to png"
+
+if [[ $1 == "" ]]; then
+	echo "Please select a file to convert from gif to png"
+	exit
+fi
+if [[ $2 == "" ]]; then
+	echo "Please select an output filename"
+	exit
+fi
+
+
+convert $1 $2
+

@@ -1,0 +1,15 @@
+#!/bin/bash
+if [[ "$1" == "" ]];then
+
+    echo -e "Please select a valid input file ! "
+    exit
+fi
+if [[ "$2" == "" ]];then
+
+    echo -e "Please select a valid output file ! "
+    exit
+fi
+echo -e "converting pico file to csv (file $1)"
+sed 's/,/./g' $1 | sed 's/;/,/g' > $2
+sed -i -e 1,3d $2
+

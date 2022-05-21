@@ -1,0 +1,6 @@
+#!/bin/bash
+sudo apt-get install wine1.*
+cd /tmp/
+wget http://ltspice.linear-tech.com/software/LTspiceXVII.exe
+wine LTspiceXVII.exe
+rm LTspiceXVII.exe

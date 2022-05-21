@@ -1,0 +1,7 @@
+#!/bin/bash
+
+lsb_release -a 
+cat /proc/version 
+echo 'Architecture du système : ' `uname -m`
+sensors
+

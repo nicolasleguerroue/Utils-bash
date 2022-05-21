@@ -1,0 +1,3 @@
+sudo add-apt-repository -y ppa:antumdeluge/debreate
+sudo apt-get update
+sudo apt-get install debreate

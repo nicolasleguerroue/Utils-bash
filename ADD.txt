@@ -1,0 +1,185 @@
+sudo apt-get install php.7.2-sqlite
+
+
+
+Download screenshot or frame from YouTube video at certain timestamp
+Downloads the frame of given YouTube video at 8 minutes 14 seconds. Requested format is "299", which 1080p only video.
+
+ffmpeg -ss 8:14 -i $(youtube-dl -f 299 --get-url URL) -vframes 1 -q:v 2 out.jpg
+
+
+Show current network interface in use
+
+ip addr | awk '/state UP/ {print $2}' | sed 's/.$//'
+
+
+
+Download all images from a site
+This recursively downloads all images from a given website to your /tmp directory. The -nH and -nd switches disable downloading of the directory structure.
+
+wget -r -l1 --no-parent -nH -nd -P/tmp -A".gif,.jpg" http://example.com/images
+
+
+Find the files that contain a certain term
+Simple use of find and grep to recursively search a directory for files that contain a certain term.
+
+find /path/to/dir -type f -exec grep \-H "search term" {} \;
+
+
+Analyse a PHP file for instantations and static calls
+This grabs all lines that make an instantation or static call, then filters out the cruft and displays a summary of each class called and the frequency. Show Sample Output
+
+
+-3
+grep -o "\(new \(\w\+\)\|\w\+::\)" file.php | sed 's/new \|:://' | sort | uniq -c | sort
+
+
+
+
+Display PHP files that directly instantiate a given class
+This greps all PHP files for a given classname and displays both the file and the usage. Show Sample Output
+
+
+0
+find . -name "*.php" -exec grep \-H "new filter_" {} \;
+
+
+#for a in $(seq 20); do xdotool key Num_Lock;sleep .01; xdotool key Caps_Lock;sleep .01; done
+
+
+
+#Affiche les interface réseau utilisée
+
+ip r show default | awk '{print $5}'
+
+
+#Alert visuelle tant que aucune touche press&
+printf "\e[38;5;1m"; while true; do printf "\e[?5h A L E R T %s\n" "$(date)"; sleep 0.1; printf "\e[?5l"; read -r -s -n1 -t1 && printf "\e[39m" && break; done
+
+
+sudo apt-get install streamlink  -line yt
+
+streamlink --player="cvlc --no-video" "https://www.youtube.com/watch?v=vo51V7kG6Xc" 720p|& tee /dev/null
+
+
+Les 10 commandes les plus utilisée :
+
+sort ~/.bash_history|uniq -c|sort -n|tail -n 10
+
+
+Reduce PDF size
+
+
+
+- COunt hour of music in current directory
+
+find . -print0 | xargs -0 -P 40 -n 1 sh -c 'ffmpeg -i "$1" 2>&1 | grep "Duration:" | cut -d " " -f 4 | sed "s/.$//" | tr "." ":"' - | awk -F ':' '{ sum1+=$1; sum2+=$2; sum3+=$3; sum4+=$4 } END { printf "%.0f:%.0f:%.0f.%.0f\n", sum1, sum2, sum3, sum4 }'
+
+
+Caputure video desktop
+
+
+ffmpeg -video_size 1024x768 -framerate 25 -f x11grab -i :0.0+100,200 output.mp4
+
+
+
+sudo apt-get install parallel : becnhmark cpu
+sudo apt-get install  docker 
+
+#docker run --rm -v /var/run/docker.sock:/var/run/docker.sock assaflavie/runlike [ID_CONTAINER]
+
+
+
+Draw honeycombe
+
+yes "\\__/ " | tr "\n" " " | fold -$((($COLUMNS-3)/6*6+3)) | head -$LINES
+
+
+Sequence : 
+
+seq 100
+
+
+Draw mesh
+
+seq -s " \\_/" 256|tr -d "0-9"|fold -70
+
+Horizontal line
+printf "%`tput cols`s"|sed "s/ /_/g"
+
+
+Calendar
+
+
+cal -A 1 8 2018
+
+
+Convert MP3s & an image to MP4 videos using ffmpeg
+
+for name in *.mp3; do ffmpeg -loop 1 -i imagename.jpg -i "$name" -shortest -c:v libx264 -preset ultrafast -c:a copy "${name%.*}.mp4"; done
+
+Number of cpu
+
+ nproc
+
+
+ xdotool getmouselocation --shell
+
+
+
+ #Get public addresse
+
+ curl -L ipconfig.me
+
+
+ Count number of javascript files in subdirectories
+
+find . -mindepth 2 -name "*.js" -type f |wc -l
+
+
+Number of CPU's in a system
+
+grep -cE "^processor" /proc/cpuinfo
+
+
+#echo "http://commandlinefu.com" | curl -F-=\<- qrenco.de
+
+
+
+#Batterie 
+
+upower -i /org/freedesktop/UPower/devices/battery_BAT0
+
+
+#Send mail
+(sleep 1;echo EHLO MAIL;sleep 1;echo "MAIL FROM: <a@foo.de>";sleep 1;echo "RCPT TO: <b@bar.eu>";sleep 1;echo DATA;sleep 1;echo Subject: test;sleep 1;echo;sleep 1;echo Message;sleep 1;echo .;sleep 1;)|openssl s_client -host b.de -port 25 -starttls smtp
+
+
+
+#Instanciation PHP -> 
+
+grep -o "\(new \(\w\+\)\|\w\+::\)" file.php | sed 's/new \|:://' | sort | uniq -c | sort
+
+
+
+cat /etc/issue.net
+
+wget -r -l1 --no-parent -nH -nd -P/tmp -A".gif,.jpg" http://example.com/images
+
+
+
+#Bell
+
+echo -en "\007"
+
+
+#Remove comment in view 
+grep -v "^#" file.txt | more
+
+
+#old effect tv 
+
+yes "$(seq 232 255;seq 254 -1 233)" | while read i; do printf "\x1b[48;5;${i}m\n"; sleep .01; done
+
+
+google-eath-pro

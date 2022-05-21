@@ -1,0 +1,46 @@
+.\" Manuel pour la bilbiothèque Sounds
+.TH Sounds 1 "20/07/2020" "Version 1.0" "Manuel Sounds"
+
+.SH NOM
+.B Sounds
+
+.SH TYPE
+.B Bibliothèqe Bash
+
+.SH DESCRIPTION
+.I Sounds vous permet de faire de la synthèse vocale sur un ordinateur ou Raspberry-pi
+
+ 
+
+.SH COMMANDES SetMachine , Speech 
+
+
+.SH SYNOPSYS
+.B Inclusion de la bibliothèque :  source $UTILS
+
+
+.SH COMMANDE SetMachine
+.B Description
+SetMachine permet de chosir l'environnement de synthèse vocale.
+.B Option(s)
+'Computer' ou 'Raspberry'
+.B Retour : Rien
+.B Exemple
+etMachine 'Computer'
+
+
+.SH COMMANDE Speech
+.B Description
+Speech permet de diffuser le texte passé en argument
+.B Otion(s)
+Tout le texte à la suite du nom de la commande sera énoncé à voix haute en anglais.
+.B Retour : Rien
+.B Exemple
+Speech "Hello, this is a test"
+
+
+.SH VOIR AUSSI
+source
+.SH AUTHOR \n
+Nicolas Le Guerroué - nicolasleguerroue@gmail.com
+

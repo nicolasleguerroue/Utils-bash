@@ -1,0 +1,124 @@
+#!/bin/bash
+
+#Variables globales
+storage="$HOME/.Utils"						#dossier où seront stockées les données du logiciel
+source_directory="$storage/Software"   		#Emplacement relatif du code source du site
+errors_output="$storage/stderr_utils.log"
+standard_output="$storage/stdout_utils.log"
+
+source $storage/lib/Zenity.sh
+SetTitle "Gestionnaire réseau"
+
+sudo chmod 777 -R $storage
+
+SetTitle "Gestionnaire d'installation"
+SetSize 400 200
+
+if [[ $(Question "Voulez-vous insérer un unique logiciel dans la base de données ?\n Si le logiciel à installer nécéssite des lignes de commande évoluées, choisissez 'non'" 2>> $errors_output) == "1" ]]; then  2>> $errors_output >> $standard_output 
+
+	SetSize 400 400
+	form=`zenity --forms \
+    --title="Gestionnaire de logiciel"	 \
+    --text="Ajout d'un logiciel" \
+    --add-entry="Nom générique du logiciel" \
+    --add-entry="Nom du paquet"\
+    --add-entry="Informations sur le logiciel" \
+    --separator="|" 2>> $errors_output`		 
+
+	SetTextEntry "Veuillez préciser le gestionnaire de paquet" >> $standard_output  2>> $errors_output
+	SetDefaultEntry "apt-get" 2>> $errors_output 2>> $errors_output 	
+    install_agent=$(Entry snap apt 2>> $errors_output >> $standard_output ) 2>> $errors_output >> $standard_output 
+
+
+    generic_name=$(echo "$form" | cut -d '|' -f1)     	2>> $errors_output >> $standard_output 
+    if [[ $generic_name = "" ]]; then
+    	Print "Veuiller mettre un nom de paquet !"
+    	exit
+    fi
+    name=$(echo "$form" | cut -d '|' -f2) 				2>> $errors_output >> $standard_output 
+    infos=$(echo "$form" | cut -d '|' -f3) 				2>> $errors_output >> $standard_output 
+
+	SetTextEntry "Veuillez préciser la catégorie du logiciel : " >> $standard_output  2>> $errors_output
+	SetDefaultEntry "Animations" 2>> $errors_output 2>> $errors_output 						
+	categorie=$(Entry CAO Compilateur Éditeur Électronique Émulation Partage Géographie Jeux Interface Interpréteur Mathématiques Messagerie Modules Multimédia Navigateur Outils Physique Python Serveur Système Traitement)
+
+	sudo mkdir $source_directory/$generic_name																2>> $errors_output  
+	sudo touch $source_directory/$generic_name/$generic_name.install 										2>> $errors_output  
+	sudo touch $source_directory/$generic_name/$generic_name.remove 										2>> $errors_output 
+	sudo touch $source_directory/$generic_name/$generic_name.type 											2>> $errors_output  
+	sudo touch $source_directory/$generic_name/$generic_name.infos 											2>> $errors_output  
+
+	sudo chmod 777 -R $source_directory/$generic_name 														2>> $errors_output
+
+	if [[ $install_agent = "apt-get" ]]; then
+    	echo "sudo apt-get install -y $name" > $source_directory/$generic_name/$generic_name.install 				2>> $errors_output  
+    	echo "sudo apt-get autoremove --purge -y $name" > $source_directory/$generic_name/$generic_name.remove 		2>> $errors_output  
+    fi
+	if [[ $install_agent = "snap" ]]; then
+    	echo "sudo snap install --classic $name" > $source_directory/$generic_name/$generic_name.install 		2>> $errors_output  
+    	echo "sudo snap remove $name" > $source_directory/$generic_name/$generic_name.remove 					2>> $errors_output  
+    fi	
+	if [[ $install_agent = "apt" ]]; then
+    	echo "sudo apt install -y $name" > $source_directory/$generic_name/$generic_name.install 				2>> $errors_output  
+    	echo "sudo apt autoremove --purge -y $name" > $source_directory/$generic_name/$generic_name.remove 		2>> $errors_output  
+    fi	
+	echo $categorie > $source_directory/$generic_name/$generic_name.type 								2>> $errors_output  
+	echo $infos > $source_directory/$generic_name/$generic_name.infos 									2>> $errors_output  
+
+
+else #Sinon
+	SetSize 400 100
+	if [[ $(Question "Voulez-vous insérer un ensemble de logiciels ?" 2>> $errors_output) == "1" ]]; then 2>> $errors_output 
+	
+		SetTextEntry "Nombre d'instructions à éditer : "  						2>> $errors_output >> $standard_output 
+		SetDefaultEntry "3" 													2>> $errors_output >> $standard_output 
+		nombre=$(Entry 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20) 		2>> $errors_output >> $standard_output
+		instruction=""															2>> $errors_output >> $standard_output 
+		for (( i = 0; i < $nombre; i++ )); do
+			instruction="$instruction --add-entry=Commande-$(echo $(($i+1)))  \ " 2>> $errors_output >> $standard_output 
+		done
+		form=`zenity --forms \
+    	--title="Gestionnaire de logiciel"	 \
+    	--text="Ajout d'un ensemble de logiciels" \
+    	--add-entry="Nom générique de l'ensemble" \
+    	--add-entry="Informations sur le logiciel" \
+    	$instruction \
+    	--separator='|'`  
+
+		SetTextEntry "Catégorie de l'ensemble : "   	2>> $errors_output >> $standard_output 
+		SetDefaultEntry "Animations" 					2>> $errors_output >> $standard_output 
+    	categorie=$(Entry CAO Compilateur Éditeur Électronique Émulation Partage Géographie Interface Interpréteur Mathématiques Messagerie Modules Multimédia Navigateur Outils Physique Python Serveur Système Traitement) 
+
+    	generic_name=$(echo "$form" | cut -d '|' -f1)     #	2>> $errors_output >> $standard_output 
+    	infos=$(echo "$form" | cut -d '|' -f2) 				2>> $errors_output >> $standard_output 
+		mkdir $source_directory/$generic_name																2>> $errors_output >> $standard_output 
+		touch $source_directory/$generic_name/$generic_name.install 										2>> $errors_output >> $standard_output 
+		touch $source_directory/$generic_name/$generic_name.type 											2>> $errors_output >> $standard_output 
+		touch $source_directory/$generic_name/$generic_name.infos 											2>> $errors_output >> $standard_output 
+		chmod 777 -R $source_directory 2>> $errors_output >> $standard_output 								2>> $errors_output >> $standard_output 
+	
+		echo -e $categorie > $source_directory/$generic_name/$generic_name.type 								
+		echo -e $infos > $source_directory/$generic_name/$generic_name.infos 									
+    	for (( i = 3; i < $(($nombre+3)); i++ )); do 														
+    		echo "$form" | cut -d '|' -f$i >> $source_directory/$generic_name/$generic_name.install   		2>> $errors_output 
+    	done
+    	SetSize 400 100
+    	if [[ $(Question "Voulez-vous éditer le fichier de suppression du logiciel inséré ?" 2>> $errors_output) == "1" ]]; then 2>> $errors_output 
+
+			form=`zenity --forms \
+    		--title="Gestionnaire de logiciel"	 \
+    		--text="Édition du fichier de suppression" \
+    		--add-entry="instruction de suppression"`
+    		
+    		echo "$form" > $source_directory/$generic_name/$generic_name.remove 2>> $errors_output 
+
+    	else
+    		exit
+    	fi
+
+	else #refus d'installer plusieurs logiciels
+
+		exit
+
+	fi
+fi

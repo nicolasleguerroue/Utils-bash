@@ -1,0 +1,104 @@
+#!/bin/bash
+
+#Variables globales
+storage="$HOME/.Utils"						#dossier où seront stockées les données du logiciel
+source_directory="$storage/deb"   		#Emplacement relatif du code source du site
+errors_output="$storage/stderr_utils.log"
+standard_output="$storage/stdout_utils.log"
+
+source $storage/lib/Zenity.sh
+SetTitle "Gestionnaire réseau"
+
+sudo chmod 777 -R $storage
+
+if [[ $(hostname -I) == "" ]];then
+
+	SetSize 400 100
+	Info "<b>Le logiciel a quitté.</b> \n Source erreur : <i>absence de réseau internet</i>"
+	exit
+fi
+
+SetSize 2000 600
+#sudo apt-get update | zenity --progress --pulsate --auto-close --title='Gestionnaire réseau' --width=500 --height=100 --text='Mise à jour de la liste des paquets...'
+
+
+#définit le titre du logiciel
+SetTitle "Installation des logiciels" 												2>> $errors_output >> $standard_output 						
+SetColumnsCheckBox "" "logiciel" 					 								2>> $errors_output >> $standard_output 
+
+total=()
+
+i=0
+for file in `ls $source_directory`; do      2>> $errors_output >> $standard_output       #parcourt une fois chaque logiciel
+    
+	name=$file 																		2>> $errors_output >> $standard_output 
+	total[${#total[*]}]=TRUE														2>> $errors_output >> $standard_output 
+	total[${#total[*]}]="$name"														2>> $errors_output >> $standard_output 
+	let i++																			2>> $errors_output >> $standard_output 
+
+done
+
+SetTextCheckBox \
+"Veuillez sélectionner les logiciels .deb à installer - \
+Nombre de logiciels présent dans la base de données : $i."							2>> $errors_output >> $standard_output 
+
+
+software_install=$(CheckBox "${total[@]}" )  
+#echo -e $software_install
+
+
+if [[ $software_install != "" ]]; then
+
+
+	nombre=$(echo $software_install | grep -o '|' | wc -l)    	2>> $errors_output >> $standard_output 
+	nombre=$(($nombre + 1)) 									2>> $errors_output >> $standard_output 
+	#echo -e "Nombre logiciels : " $nombre 							
+
+	if [[ $nombre == 1 ]]; then
+		
+	(
+		#echo "DEDE"
+	for (( i = 1; i < $nombre; i++ )); do #récupère les différents champs
+		 executable_file=$(echo "$software_install" | cut -d '|' -f$i)			  	
+		 echo $(($i*100/$nombre)) 													
+		 echo "# Installation de $executable_file..."
+		 file_name=`ls $executable_file/`
+		 echo "INSTALL of " $executable_file/$file_name.deb
+	done
+	) | zenity --progress --title="Gestionnaire de logiciels" --text="Installation de $software_install" --percentage=0  
+
+
+	else
+
+	(
+	for (( i = 1; i < $nombre; i++ )); do #récupère les différents champs
+		 executable_file=$(echo "$software_install" | cut -d '|' -f$i)			  	
+		 echo $(($i*100/$nombre)) 	
+		 file_name=`ls $source_directory/$executable_file`										
+		 echo -e "# Installation de $source_directory/$executable_file/$file_name..."
+		 sudo dpkg -i $source_directory/$executable_file/$file_name #2>> $errors_output >> $standard_output 
+	done
+	) | zenity --progress --title="Gestionnaire de logiciels" --text="Installation des logiciels" --percentage=0  
+
+	fi
+
+		
+else
+
+	SetTitle "Fin d'installation"
+	SetSize 400 100
+	Info "Aucun logiciel à installer. Bye"  
+	exit
+fi
+
+
+
+
+# #sudo mysql --user=root
+
+# #Dans MySql :
+# #DROP USER 'root'@'localhost';
+# #CREATE USER 'root'@'localhost' IDENTIFIED BY 'password';
+# #GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost';
+
+

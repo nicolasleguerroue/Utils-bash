@@ -1,0 +1,5 @@
+#!/bin/bash
+echo -e "Redémarrage du serveur nico@electron-lib.net..."
+sudo ssh -t nico@electron-lib.net "sudo reboot"
+echo -e "Redémarrage du serveur nico@electron-lib.net : OK"
+

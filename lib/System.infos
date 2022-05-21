@@ -1,0 +1,12 @@
+#!/bin/bash
+
+
+echo -e "Ce script permet de récuperer des informations sur l'ordinateur : "
+echo -e "Récuperer le nom de l'utilisateur (login) : echo $(GetUser)"
+echo -e "Récuperer le nom du Shell : echo $(GetShell)"
+echo -e "Récuperer le nom de la session : echo $(GetSession)"
+echo -e "Récuperer le type de session : echo $(GetSessionType)"
+echo -e "Récuperer l'heure du démarrage de l'ordinateur : echo $(GetStartTime)"
+echo -e "Récuperer le temps d'activité de l'ordinateur : echo $(GetTimeActivity)"
+echo -e "Récuperer le nombre d'utilisateurs  connectés: echo $(GetNumberUsers)"
+

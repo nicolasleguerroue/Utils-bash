@@ -1,0 +1,3 @@
+sudo ap-tget install -y doxygen
+sudo ap-tget install -y doxygen-gui
+sudo ap-tget install -y graphviz

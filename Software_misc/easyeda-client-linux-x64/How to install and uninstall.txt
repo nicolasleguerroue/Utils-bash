@@ -1,0 +1,30 @@
+
+Install:
+
+1.Excute the Terminal at the decompress folder, normally hotkey CTRL+ALT+T. 
+You don't need to decompress the easyeda-linux-x64.zip file.
+
+2.Input a command at the terminal
+sudo bash install.sh
+
+3.Enter, and input the login password of your operation system, enter.
+
+4.Waiting for installing finish. After finish, you can find it on your system
+
+
+Uninstall：
+
+1.Input a command at the terminal
+sudo bash uninstall.sh
+
+2.Enter, and input the login password of your operation system, enter.
+
+3.Waiting for uninstalling finish.
+
+
+
+----------------- update record -------------
+
+v2.0.0
+
+First release
